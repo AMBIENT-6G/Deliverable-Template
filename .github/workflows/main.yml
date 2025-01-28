@@ -1,0 +1,26 @@
+name: Mirror Repository
+
+on:
+  workflow_dispatch: # Allows manual triggering of the workflow
+  schedule:
+    - cron: "0 * * * *" # Runs hourly; adjust as needed
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ensures the full history is fetched
+
+      - name: Fetch from local repo
+        run: git fetch -p origin
+
+      - name: Push to original repo
+        env:
+          GIT_CREDENTIALS: ${{ secrets.GIT_CREDENTIALS }}
+        run: |
+          git remote set-url --push origin https://${{ secrets.GIT_CREDENTIALS }}@github.com/AMBIENT-6G/Deliverable-Template.git
+          git push --mirror
